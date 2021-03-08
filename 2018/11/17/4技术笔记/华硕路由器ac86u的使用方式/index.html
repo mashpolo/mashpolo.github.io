@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="技术笔记," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="主要是记录自己通过公网的方式来访问路由器上挂载的硬盘">
+<meta name="keywords" content="技术笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ac86u通过公网模拟一个nas">
+<meta property="og:url" content="http://yoursite.com/2018/11/17/4技术笔记/华硕路由器ac86u的使用方式/index.html">
+<meta property="og:site_name" content="mashpolo思维空间">
+<meta property="og:description" content="主要是记录自己通过公网的方式来访问路由器上挂载的硬盘">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://i.loli.net/2018/11/30/5c013a32727d8.png">
+<meta property="og:image" content="https://i.loli.net/2018/11/30/5c013b6f55317.png">
+<meta property="og:image" content="https://i.loli.net/2018/11/18/5bf1377b7a45d.png">
+<meta property="og:updated_time" content="2019-02-13T00:36:19.041Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ac86u通过公网模拟一个nas">
+<meta name="twitter:description" content="主要是记录自己通过公网的方式来访问路由器上挂载的硬盘">
+<meta name="twitter:image" content="https://i.loli.net/2018/11/30/5c013a32727d8.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/11/17/4技术笔记/华硕路由器ac86u的使用方式/"/>
+
+
+
+
+
+  <title>ac86u通过公网模拟一个nas | mashpolo思维空间</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '[object Object]', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">mashpolo思维空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">个人博客</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/17/4技术笔记/华硕路由器ac86u的使用方式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Luo Lu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="mashpolo思维空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ac86u通过公网模拟一个nas</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-11-17T16:00:00+00:00">
+                2018-11-17
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Post modified&#58;</span>
+              
+              <time title="Post modified" itemprop="dateModified" datetime="2019-02-13T00:36:19+00:00">
+                2019-02-13
+              </time>
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  主要是记录自己通过公网的方式来访问路由器上挂载的硬盘
+
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="使用华硕路由器ac86u配置简单的公网访问"><a href="#使用华硕路由器ac86u配置简单的公网访问" class="headerlink" title="使用华硕路由器ac86u配置简单的公网访问"></a>使用华硕路由器ac86u配置简单的公网访问</h1><h2 id="新补充"><a href="#新补充" class="headerlink" title="新补充"></a>新补充</h2><h3 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h3><blockquote>
+<p>ac86u的路由内存是个问题，有的时候会由于内存不足导致路由器重启，这个时候可以挂载一个u盘来做虚拟内存(实际上对内存没特别大影响，只是让系统能知道内存足够，可以避免不稳定重启的情况)</p>
+</blockquote>
+<ul>
+<li><p>使用脚本</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://raw.githubusercontent.com/mashpolo/myfav/master/sdaswap.sh</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>放置于路由器目录<code>/jffs/scripts/</code>中，脚本权限755</p>
+</li>
+<li><code>/jffs/scripts/sdaswap info/start/stop</code>使用</li>
+</ul>
+<h3 id="双线双拨"><a href="#双线双拨" class="headerlink" title="双线双拨"></a>双线双拨</h3><blockquote>
+<p>ac86u不支持单线双拨，最简便的方式是重新用一根网线连接路由器和光猫<br>带宽可以叠加</p>
+</blockquote>
+<p><img src="https://i.loli.net/2018/11/30/5c013a32727d8.png" alt=""></p>
+<ol>
+<li>在路由器的外部网络中->双线路打开双线路，设定第二个WAN口和上图一致，如果两条线路带宽一致，直接可以1:1的负载，这里实际是将一个路由器的LAN口虚拟成了WAN口</li>
+<li>重启路由器</li>
+<li>使用新网线连接路由器和光猫，插入的路由器LAN口必须是你上面设置的那一个</li>
+<li>开始拨号即可，注意的地方就是选择正确的网络设置，如下图</li>
+</ol>
+<p><img src="https://i.loli.net/2018/11/30/5c013b6f55317.png" alt=""></p>
+<hr>
+<h2 id="外接硬盘"><a href="#外接硬盘" class="headerlink" title="外接硬盘"></a>外接硬盘</h2><ol>
+<li>默认url都是<code>192.168.50.1</code></li>
+<li>将硬盘插入usb3.0</li>
+</ol>
+<h2 id="开起aicloud"><a href="#开起aicloud" class="headerlink" title="开起aicloud"></a>开起aicloud</h2><ol>
+<li>在路由器里面的AiCloud中开起云端硬盘</li>
+</ol>
+<h2 id="开起samba和ftp共享硬盘"><a href="#开起samba和ftp共享硬盘" class="headerlink" title="开起samba和ftp共享硬盘"></a>开起samba和ftp共享硬盘</h2><ol>
+<li>在usb相关应用中的服务器中心开启</li>
+<li>默认<code>ftp://192.168.50.1</code>可以看到你硬盘中的东西</li>
+</ol>
+<hr>
+<h2 id="开起公网访问"><a href="#开起公网访问" class="headerlink" title="开起公网访问"></a>开起公网访问</h2><h3 id="光猫申请桥接模式"><a href="#光猫申请桥接模式" class="headerlink" title="光猫申请桥接模式"></a>光猫申请桥接模式</h3><ol>
+<li>四川电信直接在189官网打开即可</li>
+</ol>
+<p><img src="https://i.loli.net/2018/11/18/5bf1377b7a45d.png" alt=""></p>
+<ol start="2">
+<li>使用了桥接模式以后，可以在路由器上通过宽带帐号密码拨号上网</li>
+<li>路由器上能看到WAN IP是内网的</li>
+</ol>
+<h3 id="申请公网ip"><a href="#申请公网ip" class="headerlink" title="申请公网ip"></a>申请公网ip</h3><ol>
+<li>直接qq客服要求开通即可</li>
+<li>重启光猫，路由器重新拨号，能看到公网ip</li>
+</ol>
+<h3 id="设置ddns"><a href="#设置ddns" class="headerlink" title="设置ddns"></a>设置ddns</h3><blockquote>
+<p>将用户的动态ip(电信给的都是动态的ip，重启就变)绑定到一个域名上，这样通过域名访问，不管ip怎么变，都能看到这个地址</p>
+</blockquote>
+<h4 id="华硕路由器刷梅林固件-koolshre论坛上有"><a href="#华硕路由器刷梅林固件-koolshre论坛上有" class="headerlink" title="华硕路由器刷梅林固件(koolshre论坛上有)"></a>华硕路由器刷梅林固件(koolshre论坛上有)</h4><ol>
+<li>直接在页面上通过上传固件升级即可</li>
+<li>升级完成后，需要打开软件中心升级，然后重启路由器</li>
+</ol>
+<h4 id="软件中心安装aliddns和let’s-encrpt插件"><a href="#软件中心安装aliddns和let’s-encrpt插件" class="headerlink" title="软件中心安装aliddns和let’s encrpt插件"></a>软件中心安装aliddns和let’s encrpt插件</h4><ul>
+<li>前一个可以使用aliyun上注册的域名，需要申请自己的appkey和appsecret</li>
+<li>后一个是安装ssl证书</li>
+</ul>
+<h4 id="aliddns的使用"><a href="#aliddns的使用" class="headerlink" title="aliddns的使用"></a>aliddns的使用</h4><ol>
+<li>该插件主要为了方便使用自己在阿里云上注册的域名来绑定ip</li>
+<li>创建子域名，然后绑定到自己的ip上</li>
+<li>使用该插件需要在阿里云上开起accesskey的服务，然后拿到key和secret</li>
+<li>如果使用的域名解析使用的是腾讯的dnspod，需要在<code>dnspod.cn</code>上生成一个api，拿到id和token，和上面一样存储进插件即可</li>
+</ol>
+<p><em>注意</em></p>
+<blockquote>
+<p>这里需要注意的是，由于在梅林中，aicloud的web服务是基于lighttpd的，证书文件的位置在/etc下面，因此每次部署新的ssl证书以后，需要重启服务<code>service restart_webdav</code></p>
+</blockquote>
+<h4 id="let’s-encrypt插件"><a href="#let’s-encrypt插件" class="headerlink" title="let’s encrypt插件"></a>let’s encrypt插件</h4><ol>
+<li>主要是用来生成证书</li>
+<li>一键生成，会自动配置到路由器上</li>
+</ol>
+<h4 id="开起公网访问-1"><a href="#开起公网访问-1" class="headerlink" title="开起公网访问"></a>开起公网访问</h4><ol>
+<li>在路由器系统管理->系统设置中，授权方式使用<code>https</code>，一般端口默认是8443，想换就换，如果不想通过公网访问路由器设置，那就不需要换</li>
+<li>在<code>Installed Server Certificate</code>一栏可以看到通过插件申请的证书已经生效，并绑定到自己的域名上，那么可以通过公网访问该域名来使用AiCloud了</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/技术笔记/" rel="tag"># 技术笔记</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/16/3读书笔记/消息队列rabbitMQ的确认机制/" rel="next" title="rabbitMQ的消息确认">
+                <i class="fa fa-chevron-left"></i> rabbitMQ的消息确认
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/24/4技术笔记/VPS必备服务/" rel="prev" title="vps必备关注">
+                vps必备关注 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="Luo Lu" />
+            
+              <p class="site-author-name" itemprop="name">Luo Lu</p>
+              <p class="site-description motion-element" itemprop="description">个人博客，记录技术笔记，读书笔记，技术文档等</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">128</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+          
+              <div class="links-of-blogroll motion-element links-of-blogroll-block">
+                <div class="links-of-blogroll-title">
+                  <!-- modify icon to fire by szw -->
+                  <i class="fa fa-history fa-" aria-hidden="true"></i>
+                  近期文章
+                </div>
+                <ul class="links-of-blogroll-list">
+                  
+                  
+                    <li>
+                      <a href="/2021/03/04/4技术笔记/修改git历史提交人信息以及配置多目录的git配置信息/" title="git的一些方便配置以及修改历史信息" target="_blank">git的一些方便配置以及修改历史信息</a>
+                    </li>
+                  
+                    <li>
+                      <a href="/2020/12/03/3读书笔记/信用卡权益/" title="信用卡权益使用" target="_blank">信用卡权益使用</a>
+                    </li>
+                  
+                    <li>
+                      <a href="/2020/09/13/3读书笔记/搞定-读书笔记/" title="阅读搞定一书，记录笔记" target="_blank">阅读搞定一书，记录笔记</a>
+                    </li>
+                  
+                    <li>
+                      <a href="/2020/09/09/4技术笔记/简单阅读flask源码/" title="阅读flask源码笔记" target="_blank">阅读flask源码笔记</a>
+                    </li>
+                  
+                    <li>
+                      <a href="/2020/09/03/4技术笔记/certbot安装ssl证书/" title="推荐certbot申请ssl证书" target="_blank">推荐certbot申请ssl证书</a>
+                    </li>
+                  
+                </ul>
+              </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#使用华硕路由器ac86u配置简单的公网访问"><span class="nav-number">1.</span> <span class="nav-text">使用华硕路由器ac86u配置简单的公网访问</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#新补充"><span class="nav-number">1.1.</span> <span class="nav-text">新补充</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#虚拟内存"><span class="nav-number">1.1.1.</span> <span class="nav-text">虚拟内存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#双线双拨"><span class="nav-number">1.1.2.</span> <span class="nav-text">双线双拨</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#外接硬盘"><span class="nav-number">1.2.</span> <span class="nav-text">外接硬盘</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#开起aicloud"><span class="nav-number">1.3.</span> <span class="nav-text">开起aicloud</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#开起samba和ftp共享硬盘"><span class="nav-number">1.4.</span> <span class="nav-text">开起samba和ftp共享硬盘</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#开起公网访问"><span class="nav-number">1.5.</span> <span class="nav-text">开起公网访问</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#光猫申请桥接模式"><span class="nav-number">1.5.1.</span> <span class="nav-text">光猫申请桥接模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#申请公网ip"><span class="nav-number">1.5.2.</span> <span class="nav-text">申请公网ip</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置ddns"><span class="nav-number">1.5.3.</span> <span class="nav-text">设置ddns</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#华硕路由器刷梅林固件-koolshre论坛上有"><span class="nav-number">1.5.3.1.</span> <span class="nav-text">华硕路由器刷梅林固件(koolshre论坛上有)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#软件中心安装aliddns和let’s-encrpt插件"><span class="nav-number">1.5.3.2.</span> <span class="nav-text">软件中心安装aliddns和let’s encrpt插件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#aliddns的使用"><span class="nav-number">1.5.3.3.</span> <span class="nav-text">aliddns的使用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#let’s-encrypt插件"><span class="nav-number">1.5.3.4.</span> <span class="nav-text">let’s encrypt插件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#开起公网访问-1"><span class="nav-number">1.5.3.5.</span> <span class="nav-text">开起公网访问</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Luo Lu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
