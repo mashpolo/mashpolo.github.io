@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="存储关系," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="对高性能mysql的一些认识">
+<meta name="keywords" content="存储关系">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高性能的mysql">
+<meta property="og:url" content="http://yoursite.com/2018/08/14/1存储关系/高性能mysql的简单认知/index.html">
+<meta property="og:site_name" content="mashpolo思维空间">
+<meta property="og:description" content="对高性能mysql的一些认识">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/941ba183gy1fuabjm83jvj20h606gabg.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/941ba183gy1fuabpe9iymj20ey069dh8.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/941ba183gy1fuabu3cr2yj20hs04jaam.jpg">
+<meta property="og:updated_time" content="2018-08-15T07:57:13.887Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="高性能的mysql">
+<meta name="twitter:description" content="对高性能mysql的一些认识">
+<meta name="twitter:image" content="https://ws2.sinaimg.cn/large/941ba183gy1fuabjm83jvj20h606gabg.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/08/14/1存储关系/高性能mysql的简单认知/"/>
+
+
+
+
+
+  <title>高性能的mysql | mashpolo思维空间</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '[object Object]', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">mashpolo思维空间</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">个人博客</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/14/1存储关系/高性能mysql的简单认知/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Luo Lu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="mashpolo思维空间">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">高性能的mysql</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-08-14T16:00:00+00:00">
+                2018-08-14
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Post modified&#58;</span>
+              
+              <time title="Post modified" itemprop="dateModified" datetime="2018-08-15T07:57:13+00:00">
+                2018-08-15
+              </time>
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  对高性能mysql的一些认识
+
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="高性能的mysql"><a href="#高性能的mysql" class="headerlink" title="高性能的mysql"></a>高性能的mysql</h1><h2 id="了解mysql查询过程"><a href="#了解mysql查询过程" class="headerlink" title="了解mysql查询过程"></a>了解mysql查询过程</h2><ol>
+<li>客户端发送一条sql请求到缓存中</li>
+<li>命中缓存的话，直接返回结果</li>
+<li>经过sql解析器，优化器，分解成查询计划</li>
+<li>通过存储结构的api，查询计划调用api返回结果，如果命中缓存的机制，也需要缓存这部份数据</li>
+</ol>
+<ul>
+<li>返回的数据，有可能是多个数据包，但不可能只保留一部分的数据包</li>
+<li>使用了tcp的协议来返回数据包，也就是说是有顺序的</li>
+<li>查询语句太长的话，也就说客户端发送的包数据太大，会导致服务端卡死，可以修改max_allowed_packet参数来约定包的大小</li>
+<li>尽量避免使用*和多使用limit关键字</li>
+</ul>
+<h2 id="查询缓存"><a href="#查询缓存" class="headerlink" title="查询缓存"></a>查询缓存</h2><blockquote>
+<p>预先定义一部分sql语句可以缓存数据，通过sql_cache和sql_no_cache来设置<br>这一部分数据，会缓存到一个hashmap表中，下一次同样的sql语句，就不需要再次解析sql语句等操作</p>
+</blockquote>
+<ul>
+<li>需要sql语句和缓存中定义的完全一直，多一个空格，有注释等都会导致匹配不上</li>
+<li>查询语句有包含自定义函数，内置方法，临时表，系统表，用户的变量都会匹配不上</li>
+<li>读写操作都会导致性能的消耗，写操作会将之前的缓存数据都清空</li>
+<li>读操作由于每次sql语句都会检查一次，并且得到结果还需要缓存，这也需要造成系统的额外消耗</li>
+</ul>
+<h2 id="查询机制"><a href="#查询机制" class="headerlink" title="查询机制"></a>查询机制</h2><ol>
+<li>mysql解析sql语句，转化成查询计划，寻找最优的一个</li>
+<li>最优的并不代表是时间最短的，可以查看<code>show status like  &#39;last_query_cost&#39;;</code>来获取上次查询语句的消耗</li>
+</ol>
+<h2 id="执行查询计划"><a href="#执行查询计划" class="headerlink" title="执行查询计划"></a>执行查询计划</h2><ul>
+<li>通过查询计划，调用底层的api接口来返回数据</li>
+</ul>
+<h2 id="返回结果"><a href="#返回结果" class="headerlink" title="返回结果"></a>返回结果</h2><ul>
+<li>有可能第一个结果生成就开始返回，这样可以节约资源</li>
+</ul>
+<h2 id="优化查询"><a href="#优化查询" class="headerlink" title="优化查询"></a>优化查询</h2><h2 id="设计表阶段"><a href="#设计表阶段" class="headerlink" title="设计表阶段"></a>设计表阶段</h2><ol>
+<li>针对not null字段，只有对该列进行索引了才有效，不然和其他列查询起来是一样的效率</li>
+<li>整数型设置宽度没啥用，int都是使用了32位来存储，也就是说int(1)和int(100)是一样的效果</li>
+<li>使用浮点数时，可以将浮点数转换成bigint，例如对该值乘以1百万才存储进去，可以节省mysql对浮点数精确计算的消耗</li>
+<li>timestamp类型用4个字节来存储，因此只能保存1970-2038年的数据，而datetime类型使用了8个字节，能使用的范围更广</li>
+<li>表的列不要太多，查询计划调用api来获取数据，在服务器层需要将这些数据按照列来解码，这个过程很消耗资源</li>
+<li>不要对大表来执行alter table，因为这个过程实际上是删除老表，把数据存入新表，再重新建索引，比较耗时间</li>
+</ol>
+<h3 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h3><blockquote>
+<p>索引一般使用B树算法来执行，InnoDB使用了B+树,平衡二叉树由于树的高度不会大于1，因此，查询的效率比二叉搜索树更快</p>
+</blockquote>
+<ul>
+<li><p>二叉搜索树<br><img src="https://ws2.sinaimg.cn/large/941ba183gy1fuabjm83jvj20h606gabg.jpg" alt=""></p>
+</li>
+<li><p>平衡二叉树<br><img src="https://ws2.sinaimg.cn/large/941ba183gy1fuabpe9iymj20ey069dh8.jpg" alt=""></p>
+</li>
+</ul>
+<h2 id="B树"><a href="#B树" class="headerlink" title="B树"></a>B树</h2><blockquote>
+<p>二叉搜索树，左节点 &lt; 根节点 &lt; 右节点，这样的机制能使索引查找最大最小值能容易</p>
+</blockquote>
+<h2 id="B-树"><a href="#B-树" class="headerlink" title="B+树"></a>B+树</h2><blockquote>
+<p>多分支的平衡树</p>
+</blockquote>
+<p><img src="https://ws2.sinaimg.cn/large/941ba183gy1fuabu3cr2yj20hs04jaam.jpg" alt=""></p>
+<ul>
+<li>innodb使用该算法，所有的关键字（可以理解为数据）都存储在叶子节点（Leaf Page），非叶子节点（Index Page）并不存储真正的数据，所有记录节点都是按键值大小顺序存放在同一层叶子节点上。</li>
+<li>B+树对叶子节点数据存储满的清空下，会使用拆分的操作，也就是从中间把叶节点拆开，n/2 + 1的关键字保存到根节点(如果根节点还有空间的话，否则根节点继续拆分),然后就可以将新数据存储到位置</li>
+<li>如果当前叶节点的数据满，但左右两边的叶节点还有空间，会首先来左右移动位置，以方便存储数据</li>
+</ul>
+<ol>
+<li>mysql不会使用非独立的列，例如<code>select * from xx where id + 1=4</code>，这个sql语句无法使用索引</li>
+<li>前缀索引，如果当前列数据很长，那么只索引部分字段也可以</li>
+<li>多列索引，在多个列建立独立的索引，并不会带来过多的优化，sql语句中包含多个and筛选，这多列做成一个索引优于建立多个独立索引；如果是or的状况的话，一般直接扫描全表来的更快一点；多列索引对关键字的顺序要求比较高，把选择性更高的关键字放在第一个位置会加快查询效率</li>
+<li>要避免多个范围查询，对这些范围所在的列做索引并没达到预期的目的，mysql并不支持利用索引来进行多个范围的查询，例如<code>select user.* from user where login_time &gt; &#39;2017-04-01&#39; and age between 18 and 30;</code></li>
+<li>如果要查询的值都在索引列中，那么使用覆盖索引效率会更高；索引条目远小于数据行大小，如果只读取索引，极大减少数据访问量；索引是有按照列值顺序存储的，对于I/O密集型的范围查询要比随机从磁盘读取每一行数据的IO要少的多</li>
+<li>对于大多数情况，扩展索引优于创建新索引</li>
+<li>删除长期未使用的索引</li>
+</ol>
+<h3 id="特定类型优化"><a href="#特定类型优化" class="headerlink" title="特定类型优化"></a>特定类型优化</h3><h4 id="count"><a href="#count" class="headerlink" title="count(*)"></a>count(*)</h4><ol>
+<li>如果不需要准确值，那么直接explain命令得到近似值也可以</li>
+<li>统计行数，使用count(*)意义更清晰</li>
+</ol>
+<h4 id="union查询"><a href="#union查询" class="headerlink" title="union查询"></a>union查询</h4><ol>
+<li>都是把数据全部存入临时表，然后再从临时表读取数据，返回客户端</li>
+<li>all关键字如果不加，默认是distinct，会增加消耗</li>
+<li>更方便的做法是直接返回子查询的结果</li>
+</ol>
+<h4 id="limit"><a href="#limit" class="headerlink" title="limit"></a>limit</h4><ol>
+<li>如果间隔量太大，使用覆盖索引来做会优化更高</li>
+</ol>
+<p><code>SELECT film_id,description FROM film ORDER BY title LIMIT 50,5;</code><br>替换成(使用title做索引)：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> film.film_id,film.description</span><br><span class="line"></span><br><span class="line"><span class="keyword">FROM</span> film <span class="keyword">INNER</span> <span class="keyword">JOIN</span> (</span><br><span class="line"></span><br><span class="line">    <span class="keyword">SELECT</span> film_id <span class="keyword">FROM</span> film <span class="keyword">ORDER</span> <span class="keyword">BY</span> title <span class="keyword">LIMIT</span> <span class="number">50</span>,<span class="number">5</span></span><br><span class="line"></span><br><span class="line">) <span class="keyword">AS</span> tmp <span class="keyword">USING</span>(film_id);</span><br></pre></td></tr></table></figure></p>
+<p><a href="http://dbaplus.cn/news-155-1531-1.html" target="_blank" rel="noopener">详细资料</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/存储关系/" rel="tag"># 存储关系</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/13/7Linux命令级别/单例模式，类特殊方法笔记/" rel="next" title="单例模式，类特殊方法笔记">
+                <i class="fa fa-chevron-left"></i> 单例模式，类特殊方法笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/08/21/6数据结构/python实现二叉树的遍历/" rel="prev" title="二叉树的遍历">
+                二叉树的遍历 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="Luo Lu" />
+            
+              <p class="site-author-name" itemprop="name">Luo Lu</p>
+              <p class="site-description motion-element" itemprop="description">个人博客，记录技术笔记，读书笔记，技术文档等</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">132</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+          
+              <div class="links-of-blogroll motion-element links-of-blogroll-block">
+                <div class="links-of-blogroll-title">
+                  <!-- modify icon to fire by szw -->
+                  <i class="fa fa-history fa-" aria-hidden="true"></i>
+                  近期文章
+                </div>
+                <ul class="links-of-blogroll-list">
+                  
+                  
+                    <li>
+                      <a href="/2023/09/13/4技术笔记/苹果开发者账号导出证书/" title="苹果开发者账号导出证书" target="_blank">苹果开发者账号导出证书</a>
+                    </li>
+                  
+                    <li>
+                      <a href="/2021/12/01/4技术笔记/setapp简单介绍以及推荐app/" title="setapp使用推荐" target="_blank">setapp使用推荐</a>
+                    </li>
+                  
+                    <li>
+                      <a href="/2021/06/16/4技术笔记/nginx通过header参数来转发请求到不同服务/" title="nginx的参数转发" target="_blank">nginx的参数转发</a>
+                    </li>
+                  
+                    <li>
+                      <a href="/2021/06/01/2代码优化和问题/python/python提高运行速度的tips/" title="python的一些提高运行速度的tips" target="_blank">python的一些提高运行速度的tips</a>
+                    </li>
+                  
+                    <li>
+                      <a href="/2021/03/04/4技术笔记/修改git历史提交人信息以及配置多目录的git配置信息/" title="git的一些方便配置以及修改历史信息" target="_blank">git的一些方便配置以及修改历史信息</a>
+                    </li>
+                  
+                </ul>
+              </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#高性能的mysql"><span class="nav-number">1.</span> <span class="nav-text">高性能的mysql</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#了解mysql查询过程"><span class="nav-number">1.1.</span> <span class="nav-text">了解mysql查询过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#查询缓存"><span class="nav-number">1.2.</span> <span class="nav-text">查询缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#查询机制"><span class="nav-number">1.3.</span> <span class="nav-text">查询机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#执行查询计划"><span class="nav-number">1.4.</span> <span class="nav-text">执行查询计划</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#返回结果"><span class="nav-number">1.5.</span> <span class="nav-text">返回结果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优化查询"><span class="nav-number">1.6.</span> <span class="nav-text">优化查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设计表阶段"><span class="nav-number">1.7.</span> <span class="nav-text">设计表阶段</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#索引"><span class="nav-number">1.7.1.</span> <span class="nav-text">索引</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B树"><span class="nav-number">1.8.</span> <span class="nav-text">B树</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B-树"><span class="nav-number">1.9.</span> <span class="nav-text">B+树</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#特定类型优化"><span class="nav-number">1.9.1.</span> <span class="nav-text">特定类型优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#count"><span class="nav-number">1.9.1.1.</span> <span class="nav-text">count(*)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#union查询"><span class="nav-number">1.9.1.2.</span> <span class="nav-text">union查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#limit"><span class="nav-number">1.9.1.3.</span> <span class="nav-text">limit</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Luo Lu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
